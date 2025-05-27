@@ -1,33 +1,46 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import {BrowserRouter as Router, Routes, Route} from 'react-router-dom'
+import { useEffect, useRef } from 'react'
 import './App.css'
+import Home from './pages/Home'
+import About from './pages/About'
+import Missions from './pages/Missions'
+
 
 function App() {
-  const [count, setCount] = useState(0)
+  const audioRef = useRef(null)
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = 0.5
+      const playAudio = () => {
+        audioRef.current.play().catch(() => {
+          console.log('Autoplay blocked — user interaction required.')
+        })
+      }
+
+      // Try to play immediately
+      playAudio()
+
+      // Resume on user interaction (for blocked autoplay)
+      const handleInteraction = () => {
+        playAudio()
+        window.removeEventListener('click', handleInteraction)
+      }
+
+      window.addEventListener('click', handleInteraction)
+    }
+  }, [])
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <audio ref={audioRef} src="/Mission Impossible Theme (Full Theme).mp3" loop hidden />
+      <Router>
+        <Routes>
+          <Route exact path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/missions" element={<Missions />} />
+        </Routes>
+      </Router>
     </>
   )
 }
